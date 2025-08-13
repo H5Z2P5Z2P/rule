@@ -3,11 +3,10 @@
     "servers": [
       {"tag": "local", "type": "udp", "server": "223.5.5.5"},
       {"tag": "public", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
-      {"tag": "foreign", "type": "https", "server": "cloudflare-dns.com", "domain_resolver": "local", "detour": "🔍 DNS专用"},
-      {"tag": "block", "type": "rcode", "rcode": "refused"}
+      {"tag": "foreign", "type": "https", "server": "cloudflare-dns.com", "domain_resolver": "local", "detour": "🔍 DNS专用"}
     ],
     "rules": [
-      {"rule_set": "geosite-category-ads-all", "server": "block"},
+      {"rule_set": "geosite-category-ads-all", "action": "predefined", "rcode": "REFUSED"},
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "foreign"},
       {"rule_set": ["geosite-cn", "geosite-steamcn", "geosite-apple"], "server": "local"},
