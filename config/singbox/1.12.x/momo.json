@@ -3,17 +3,21 @@
     "servers": [
       {"tag": "local", "type": "udp", "server": "223.5.5.5"},
       {"tag": "public", "type": "https", "server": "dns.alidns.com", "domain_resolver": "local"},
-      {"tag": "foreign", "type": "https", "server": "1.1.1.1"}
+      {"tag": "foreign", "type": "https", "server": "cloudflare-dns.com", "domain_resolver": "local", "detour": "🔍 DNS专用"},
+      {"tag": "block", "type": "rcode", "rcode": 3}
     ],
     "rules": [
-      {"query_type": "HTTPS", "action": "reject"},
+      {"rule_set": "geosite-category-ads-all", "server": "block"},
       {"clash_mode": "direct", "server": "local"},
       {"clash_mode": "global", "server": "foreign"},
-      {"rule_set": ["geosite-cn", "geosite-steamcn", "geosite-apple"], "server": "local"}
+      {"rule_set": ["geosite-cn", "geosite-steamcn", "geosite-apple"], "server": "local"},
+      {"rule_set": "geosite-!cn", "server": "foreign"}
     ],
     "final": "foreign",
-    "strategy": "ipv4_only",
-    "independent_cache": true
+    "strategy": "prefer_ipv4",
+    "independent_cache": true,
+    "disable_cache": false,
+    "disable_expire": false
   },
   "outbounds": [
     {"tag": "🚀 默认代理", "type": "selector", "outbounds": ["🇭🇰 香港手动", "🇯🇵 日本手动", "🇸🇬 狮城手动", "🇺🇲 美国手动", "🐸 手动选择", "♻️ 自动选择"]},
@@ -33,11 +37,13 @@
     {"tag": "🇭🇰 香港手动", "type": "selector", "outbounds": ["{all}"], "filter": [{"action": "include", "keywords": ["🇭🇰|HK|hk|香港|港|HongKong"]}, {"action": "exclude", "keywords": ["免费"]}]},
     {"tag": "🇯🇵 日本手动", "type": "selector", "outbounds": ["{all}"], "filter": [{"action": "include", "keywords": ["🇯🇵|JP|jp|日本|日|Japan"]}, {"action": "exclude", "keywords": ["免费"]}]},
     {"tag": "🇸🇬 狮城手动", "type": "selector", "outbounds": ["{all}"], "filter": [{"action": "include", "keywords": ["新加坡|坡|狮城|SG|Singapore"]}, {"action": "exclude", "keywords": ["免费"]}]},
-    {"tag": "🇺🇲 美国手动", "type": "selector", "outbounds": ["{all}"], "filter": [{"action": "include", "keywords": ["🇺🇸|US|us|美国|美|United States"]}, {"action": "exclude", "keywords": ["AUS|RUS|免费"]}]},
+    {"tag": "🇺🇲 美国手动", "type": "selector", "outbounds": ["{all}"], "filter": [{"action": "include", "keywords": ["🇺🇸|US|us|USA|美国|美|United States|America"]}, {"action": "exclude", "keywords": ["AUS|RUS|Australia|Russia|免费"]}]},
+    {"tag": "🇰🇷 韩国手动", "type": "selector", "outbounds": ["{all}"], "filter": [{"action": "include", "keywords": ["🇰🇷|KR|kr|韩国|韩|Korea|首尔|Seoul"]}, {"action": "exclude", "keywords": ["免费"]}]},
     {"tag": "🐸 手动选择", "type": "selector", "outbounds": ["{all}"], "filter": [{"action": "exclude", "keywords": ["网站|流量|地址|剩余|过期|免费|时间|有效|Traffic|ExpireDate|GB|Expire Date"]}]},
-    {"tag": "♻️ 自动选择", "type": "urltest", "outbounds": ["{all}"], "filter": [{"action": "exclude", "keywords": ["官网|到期时间|剩余|流量|套餐|免费|订阅|全球直连|GB|Expire Date|Traffic|ExpireDate"]}], "interval": "10m", "tolerance": 100},
-    {"tag": "🍃 延迟辅助", "type": "urltest", "outbounds": ["🚀 默认代理", "🎯 全球直连"]},
-    {"tag": "GLOBAL", "type": "selector", "outbounds": ["🚀 默认代理", "🧠 AI", "📹 YouTube", "🍀 Google", "👨‍💻 Github", "📲 Telegram", "🎵 TikTok", "🎥 Netflix", "💶 PayPal", "🎮 Steam", "🪟 Microsoft", "🐬 OneDrive", "🍏 Apple", "🐠 漏网之鱼", "🇭🇰 香港手动", "🇯🇵 日本手动", "🇸🇬 狮城手动", "🇺🇲 美国手动", "🐸 手动选择", "♻️ 自动选择", "🍃 延迟辅助", "🎯 全球直连"]},
+    {"tag": "♻️ 自动选择", "type": "urltest", "outbounds": ["{all}"], "filter": [{"action": "exclude", "keywords": ["官网|到期时间|剩余|流量|套餐|免费|订阅|全球直连|GB|Expire Date|Traffic|ExpireDate"]}], "interval": "10m", "tolerance": 50, "url": "http://www.gstatic.com/generate_204"},
+    {"tag": "🍃 延迟辅助", "type": "urltest", "outbounds": ["🇭🇰 香港手动", "🇯🇵 日本手动", "🇸🇬 狮城手动", "🇺🇲 美国手动", "🎯 全球直连"], "interval": "5m", "tolerance": 20},
+    {"tag": "🔍 DNS专用", "type": "selector", "outbounds": ["{all}"], "filter": [{"action": "include", "keywords": ["🇯🇵|JP|jp|日本|日|Japan"]}, {"action": "exclude", "keywords": ["免费"]}]},
+    {"tag": "GLOBAL", "type": "selector", "outbounds": ["🚀 默认代理", "🧠 AI", "📹 YouTube", "🍀 Google", "👨‍💻 Github", "📲 Telegram", "🎵 TikTok", "🎥 Netflix", "💶 PayPal", "🎮 Steam", "🪟 Microsoft", "🐬 OneDrive", "🍏 Apple", "🐠 漏网之鱼", "🇭🇰 香港手动", "🇯🇵 日本手动", "🇸🇬 狮城手动", "🇺🇲 美国手动", "🇰🇷 韩国手动", "🐸 手动选择", "♻️ 自动选择", "🍃 延迟辅助", "🔍 DNS专用", "🎯 全球直连"]},
     {"tag": "🎯 全球直连", "type": "direct"}
   ],
   "route": {
@@ -47,6 +53,7 @@
       {"ip_is_private": true, "outbound": "🎯 全球直连"},
       {"clash_mode": "direct", "outbound": "🎯 全球直连"},
       {"clash_mode": "global", "outbound": "GLOBAL"},
+      {"rule_set": "geosite-category-ads-all", "outbound": "reject"},
       {"rule_set": "geosite-ai", "outbound": "🧠 AI"},
       {"rule_set": "geosite-youtube", "outbound": "📹 YouTube"},
       {"rule_set": "geosite-google", "outbound": "🍀 Google"},
@@ -69,6 +76,7 @@
       {"rule_set": "geoip-cn", "outbound": "🎯 全球直连"}
     ],
     "rule_set": [
+      {"tag": "geosite-category-ads-all", "type": "remote", "format": "binary", "url": "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/category-ads-all.srs", "download_detour": "🎯 全球直连"},
       {"tag": "geosite-ai", "type": "remote", "format": "binary", "url": "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/category-ai-!cn.srs", "download_detour": "🎯 全球直连"},
       {"tag": "geosite-youtube", "type": "remote", "format": "binary", "url": "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/youtube.srs", "download_detour": "🎯 全球直连"},
       {"tag": "geosite-google", "type": "remote", "format": "binary", "url": "https://gh-proxy.com/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/google.srs", "download_detour": "🎯 全球直连"},
@@ -97,31 +105,31 @@
     {
       "tag": "dns-in",
       "type": "direct",
-      "listen": "::",
+      "listen": "127.0.0.1",
       "listen_port": 1053
     },
     {
       "tag": "http-in",
       "type": "http",
-      "listen": "::",
+      "listen": "127.0.0.1",
       "listen_port": 8080
     },
     {
       "tag": "socks-in",
       "type": "socks",
-      "listen": "::",
+      "listen": "127.0.0.1",
       "listen_port": 1080
     },
     {
       "tag": "redirect-in",
       "type": "redirect",
-      "listen": "::",
+      "listen": "127.0.0.1",
       "listen_port": 7890
     },
     {
       "tag": "tproxy-in",
       "type": "tproxy",
-      "listen": "::",
+      "listen": "127.0.0.1",
       "listen_port": 7891
     },
     {
@@ -132,22 +140,25 @@
         "172.31.0.1/30",
         "fdfe:dcba:9876::1/126"
       ],
-      "auto_route": false,
-      "auto_redirect": false
+      "auto_route": true,
+      "auto_redirect": true,
+      "sniff": true,
+      "sniff_override_destination": true
     }
   ],
   "experimental": {
     "cache_file": {
       "enabled": true,
       "path": "/etc/momo/run/cache.db",
-      "store_fakeip": false
+      "store_fakeip": true,
+      "store_rdrc": true
     },
     "clash_api": {
-      "external_controller": "0.0.0.0:9095",
+      "external_controller": "127.0.0.1:9095",
       "external_ui": "/etc/momo/run/ui",
       "external_ui_download_url": "https://gh-proxy.com/https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip",
       "external_ui_download_detour": "🎯 全球直连",
-      "secret": "",
+      "secret": "momo2024secure",
       "default_mode": "rule"
     }
   },
