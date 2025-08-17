@@ -98,7 +98,7 @@ dns:
       - 119.29.29.29
   fake-ip-filter:
     - "rule-set:private_domain,cn_domain,apple_domain"
- 
+
 # 出站策略，根据自己情况调整每个策略里分组排序，增删都可以，比如把美国自动放到第一个，比如删除香港故转，注意别漏掉表情逗号等。
 # 如果相应分组没有筛选到对应的国家，请根据自己节点名字调整筛选关键字。
 # 没有再使用锚点，是考虑很多新手修改难度，这样新手修改某个分组更容易些。
@@ -122,6 +122,7 @@ proxy-groups:
   - {name: 🚀 中转节点, type: select, include-all: true, filter: "^((?!(网站|流量|地址|剩余|过期|免费|时间|有效|Traffic|ExpireDate|GB|Expire Date|落地)).)*$"}
   - {name: 🏁 落地节点, type: select, include-all: true, filter: "(?i)落地|终点|endpoint"}
   - {name: 🐸 手动选择, type: select, include-all: true, filter: "^((?!(网站|流量|地址|剩余|过期|免费|时间|有效|Traffic|ExpireDate|GB|Expire Date)).)*$"}
+  - {name: 📶 SpeedTest, type: select, include-all: true, filter: "^((?!(网站|流量|地址|剩余|过期|免费|时间|有效|Traffic|ExpireDate|GB|Expire Date)).)*$"}
   - {name: ♻️ 自动选择, type: url-test, include-all: true, tolerance: 50, interval: 600, filter: "^((?!(官网|到期时间|剩余|流量|套餐|免费|订阅|直连|GB|Expire Date|Traffic|ExpireDate|落地)).)*$", url: "http://www.gstatic.com/generate_204"}
   - {name: 🌐 全部节点, type: select, include-all: true}
 
@@ -129,9 +130,11 @@ proxy-groups:
 # 此规则部分没有做防泄露处理，因为弊严重大于利！
 rules:
   - RULE-SET,private_ip,直连
+  - RULE-SET,pt,直连
   - RULE-SET,private_domain,直连
   - DOMAIN-SUFFIX,qichiyu.com,🚀 默认代理
   - RULE-SET,proxylite,🚀 默认代理
+  - RULE-SET,speed_test,📶 SpeedTest
   - RULE-SET,ai,🧠 AI
   - RULE-SET,github_domain,👨‍💻 Github
   - RULE-SET,youtube_domain,📹 YouTube
@@ -158,7 +161,7 @@ rule-anchor:
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: mrs}
   domain: &domain {type: http, interval: 86400, behavior: domain, format: mrs}
   class: &class {type: http, interval: 86400, behavior: classical, format: text}
-rule-providers: 
+rule-providers:
   private_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs"}
   proxylite: { <<: *class, url: "https://raw.githubusercontent.com/qichiyuhub/rule/refs/heads/main/proxy.list"}
   ai: {  <<: *domain, url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/category-ai-!cn.mrs" }
@@ -175,7 +178,9 @@ rule-providers:
   tiktok_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/tiktok.mrs"}
   geolocation-!cn: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.mrs"}
   cn_domain: { <<: *domain, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.mrs"}
-  
+  speed_test: { <<: *domain, url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geosite/speedtest.mrs"}
+  pt: { <<: *class, url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/refs/heads/master/Clash/Ruleset/PrivateTracker.list"}
+
   private_ip: {<<: *ip, url: "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/meta/geo/geoip/private.mrs"}
   cn_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.mrs"}
   google_ip: { <<: *ip, url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/google.mrs"}
